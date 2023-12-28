@@ -1,3 +1,5 @@
+import {KeyCommand} from './lib/hid'
+
 export type RootStackParamList = {
     Devices: undefined;
     Details: {
@@ -6,7 +8,11 @@ export type RootStackParamList = {
     KeyboardMouse: {
         hostname: string,
     }
-};
+    Macros: {
+        hostname: string,
+    }
+    AddMacro: undefined;
+}
 
 declare global {
     namespace ReactNavigation {

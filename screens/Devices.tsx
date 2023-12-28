@@ -20,7 +20,11 @@ export default function DevicesScreen({ navigation, route }: DevicesScreenProps)
         onPress={() => navigation.navigate("KeyboardMouse", { hostname: hostname })}
       />
       <Button
-        title={`Details`}
+        title={`Macros`}
+        onPress={() => navigation.navigate("Macros", { hostname: hostname })}
+      />
+      <Button
+        title={`?`}
         onPress={() => navigation.navigate("Details", { hostname: hostname })}
       />
     </View>

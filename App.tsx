@@ -5,6 +5,8 @@ import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navig
 import KeyboardMouse from './screens/KeyboardMouse';
 import Devices from './screens/Devices';
 import { RootStackParamList } from './types';
+import Macros from './screens/Macros';
+import AddMacroScreen from './screens/AddMacro';
 
 
 type DetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'Details'>;
@@ -26,7 +28,11 @@ function App() {
       <Stack.Navigator initialRouteName="Devices">
         <Stack.Screen name="Devices" component={Devices} />
         <Stack.Screen name="Details" component={DetailsScreen} options={({ route }) => ({ title: route.params.hostname })} />
-        <Stack.Screen name="KeyboardMouse" component={KeyboardMouse}  options={({ route }) => ({ title: route.params.hostname })}/>
+        <Stack.Screen name="KeyboardMouse" component={KeyboardMouse} options={({ route }) => ({ title: route.params.hostname })} />
+        <Stack.Screen name="Macros" component={Macros} options={({ route }) => ({ title: route.params.hostname })} />
+        <Stack.Group screenOptions={{ presentation: 'modal' }}>
+          <Stack.Screen name="AddMacro" options={{title: "Add Macro"}} component={AddMacroScreen} />
+        </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>
   );
