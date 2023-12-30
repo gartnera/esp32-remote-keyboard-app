@@ -40,7 +40,7 @@ export default function Joystick(props: JoystickParamsT) {
   const touch = useRef(
     new Animated.ValueXY(stickCenter)
   ).current;
-  const tCb = throttle(props.valCb, 50);
+  const tCb = useRef(throttle(props.valCb, 25)).current;
   const pan = Gesture.Pan()
     .onUpdate((e) => {
       let newX = stickCenter.x + e.translationX;
@@ -56,7 +56,7 @@ export default function Joystick(props: JoystickParamsT) {
       })
       const bound = CONTAINER_HALF_SIDE_SIZE - CURSOR_HALF_SIDE_SIZE;
       const xRelCenter = -1 * (CONTAINER_HALF_SIDE_SIZE - newX);
-      const yRelCenter = CONTAINER_HALF_SIDE_SIZE - newY;
+      const yRelCenter = -1 * (CONTAINER_HALF_SIDE_SIZE - newY);
       const xRanged = Math.round(xRelCenter / bound * 127);
       const yRanged = Math.round(yRelCenter / bound * 127);
       tCb({x: xRanged, y: yRanged})

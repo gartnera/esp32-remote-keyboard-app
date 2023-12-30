@@ -73,6 +73,9 @@ export class WebsocketManager {
   }
 
   send(data: string) {
+    if (this.ws!.readyState != WebSocket.OPEN) {
+      return;
+    }
     this.ws!.send(data);
   }
 
