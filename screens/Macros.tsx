@@ -84,7 +84,7 @@ export default function Macros({ navigation, route }: MacrosScreenProps) {
   }, [navigation]);
 
   const runMacro = useCallback((macro: Macro) => {
-    macro.keyCommands.forEach((cmd) => ws?.send(JSON.stringify(cmd)))
+    macro.keyCommands.forEach((cmd) => ws!.send(JSON.stringify({type: "keyboard", ...cmd})))
   }, [ws])
 
   const stateString = wsState;

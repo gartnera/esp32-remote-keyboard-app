@@ -11,6 +11,9 @@ export type RootStackParamList = {
     Macros: {
         hostname: string,
     }
+    Gamepad: {
+        hostname: string,
+    }
     AddMacro: undefined;
 }
 

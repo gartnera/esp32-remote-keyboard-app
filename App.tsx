@@ -7,6 +7,7 @@ import Devices from './screens/Devices';
 import { RootStackParamList } from './types';
 import Macros from './screens/Macros';
 import AddMacroScreen from './screens/AddMacro';
+import Gamepad from './screens/Gamepad';
 
 
 type DetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'Details'>;
@@ -30,6 +31,7 @@ function App() {
         <Stack.Screen name="Details" component={DetailsScreen} options={({ route }) => ({ title: route.params.hostname })} />
         <Stack.Screen name="KeyboardMouse" component={KeyboardMouse} options={({ route }) => ({ title: route.params.hostname })} />
         <Stack.Screen name="Macros" component={Macros} options={({ route }) => ({ title: route.params.hostname })} />
+        <Stack.Screen name="Gamepad" component={Gamepad} options={({ route }) => ({ title: route.params.hostname })} />
         <Stack.Group screenOptions={{ presentation: 'modal' }}>
           <Stack.Screen name="AddMacro" options={{title: "Add Macro"}} component={AddMacroScreen} />
         </Stack.Group>

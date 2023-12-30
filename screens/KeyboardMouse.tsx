@@ -42,7 +42,7 @@ export default function KeyboardMouse({ navigation, route }: KeyboardMouseScreen
       return;
     }
     console.log(command)
-    ws.send(JSON.stringify(command));
+    ws.send(JSON.stringify({type: "keyboard", ...command}));
   }, [ws])
 
   useEffect(() => {

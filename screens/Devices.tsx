@@ -10,18 +10,23 @@ export default function DevicesScreen({ navigation, route }: DevicesScreenProps)
   const devices = [
     "asdf.local",
     "esp32.local",
+    "esp32-dev.local",
   ]
   const deviceButtons = devices.map((hostname) => {
     return <View style={styles.row} key={hostname}>
       <Text>{hostname}</Text>
       <View style={styles.spacer}></View>
       <Button
-        title={`Keyboard`}
+        title={`K`}
         onPress={() => navigation.navigate("KeyboardMouse", { hostname: hostname })}
       />
       <Button
-        title={`Macros`}
+        title={`M`}
         onPress={() => navigation.navigate("Macros", { hostname: hostname })}
+      />
+      <Button
+        title={`G`}
+        onPress={() => navigation.navigate("Gamepad", { hostname: hostname })}
       />
       <Button
         title={`?`}
