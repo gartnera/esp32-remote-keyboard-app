@@ -5,6 +5,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 
 import { mapKey } from '../lib/hid';
+import { getWebsocketManager } from '../lib/ws';
 
 function getWebSocketStateString(readyState: Number) {
   switch (readyState) {
@@ -25,14 +26,12 @@ type KeyboardMouseScreenProps = NativeStackScreenProps<RootStackParamList, 'Keyb
 
 export default function KeyboardMouse({ navigation, route }: KeyboardMouseScreenProps) {
   const [val, setVal] = useState("");
-  const [ws, setWs] = useState<WebSocket | null>(null);
-  const [wsReconnectCtr, setWsReconnectCtr] = useState(0);
-  const [wsConnectCtr, setWsConnectCtr] = useState(0);
-  const [wsState, setWsState] = useState("UNINITIALIZED");
-  const handleKeyPress = useCallback((ev: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
-    console.log(ws)
-    console.log(ev.nativeEvent);
-    if (!ws || ws.readyState != WebSocket.OPEN) {
+
+  const wsMan = getWebsocketManager(`ws://${route.params.hostname}:81`);
+  const ws = wsMan.subscribeReact();
+
+  const handleKeyPress = (ev: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
+    if (!ws || ws.readyState() != WebSocket.OPEN) {
       console.log("not connected");
       return
     }
@@ -43,54 +42,14 @@ export default function KeyboardMouse({ navigation, route }: KeyboardMouseScreen
     }
     console.log(command)
     ws.send(JSON.stringify({type: "keyboard", ...command}));
-  }, [ws])
+  }
 
-  useEffect(() => {
-    const newWebSocket = new WebSocket(`ws://${route.params.hostname}:81`);
-    setWsState(getWebSocketStateString(newWebSocket.readyState));
-
-    newWebSocket.onopen = () => {
-      console.log('WebSocket connected');
-      setWsState(getWebSocketStateString(newWebSocket.readyState));
-      setWs(newWebSocket);
-      setWsConnectCtr(wsConnectCtr + 1);
-    };
-
-    newWebSocket.onmessage = (e) => {
-      console.log('Received message:', e.data);
-      // Handle received messages from the server
-    };
-
-    newWebSocket.onerror = (e) => {
-      console.error('WebSocket error');
-      setWs(null);
-      setWsState(getWebSocketStateString(newWebSocket.readyState));
-      // Handle errors
-    };
-
-    newWebSocket.onclose = () => {
-      console.log('WebSocket disconnected');
-      // tolerate connect/disconnect race
-      if (ws !== newWebSocket) {
-        return
-      }
-      setWs(null);
-      setWsState(getWebSocketStateString(newWebSocket.readyState));
-      // Handle the WebSocket closing
-    };
-
-    // Clean up WebSocket connection on unmount
-    return () => {
-      newWebSocket.close();
-    };
-  }, [wsReconnectCtr]);
-  const stateString = wsState;
   return (
     <View style={styles.container}>
-      <Text>Websocket state: {stateString}</Text>
+      <Text>Websocket state: {ws.state}</Text>
       <TextInput style={styles.input} value={val} onChangeText={setVal} keyboardType={'ascii-capable'} autoCorrect={false} onKeyPress={handleKeyPress} multiline numberOfLines={4}></TextInput>
       <Button title="Clear" onPress={() => setVal("")}></Button>
-      <Button title={`Force Reconnect (${wsConnectCtr})`} onPress={() => setWsReconnectCtr(wsReconnectCtr + 1)}></Button>
+      <Button title={`Force Reconnect (${ws.connectionCtr})`} onPress={() => ws.reconnect()}></Button>
     </View>
   );
 }

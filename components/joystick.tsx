@@ -16,14 +16,6 @@ const CONTAINER_SIDE_SIZE = CURSOR_SIDE_SIZE * 2.5;
 const CURSOR_HALF_SIDE_SIZE = CURSOR_SIDE_SIZE / 2;
 const CONTAINER_HALF_SIDE_SIZE = CONTAINER_SIDE_SIZE / 2;
 
-interface JoystickParamsT {
-  styles: {
-    top: number,
-    left: number,
-  },
-  valCb: (coords: {x: number, y: number}) => void,
-}
-
 function throttle(func: any, delay: number) {
   let lastCalled = 0;
   return function (...args: any) {
@@ -33,6 +25,14 @@ function throttle(func: any, delay: number) {
       lastCalled = now;
     }
   };
+}
+
+interface JoystickParamsT {
+  styles: {
+    top: number,
+    left: number,
+  },
+  valCb: (coords: {x: number, y: number}) => void,
 }
 
 export default function Joystick(props: JoystickParamsT) {

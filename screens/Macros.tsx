@@ -6,6 +6,7 @@ import { RootStackParamList } from '../types';
 
 import { mapKey } from '../lib/hid';
 import { Macro, deleteMacro, getMacros } from '../lib/macros';
+import { getWebsocketManager } from '../lib/ws';
 
 function getWebSocketStateString(readyState: Number) {
   switch (readyState) {
@@ -25,51 +26,11 @@ function getWebSocketStateString(readyState: Number) {
 type MacrosScreenProps = NativeStackScreenProps<RootStackParamList, 'Macros'>;
 
 export default function Macros({ navigation, route }: MacrosScreenProps) {
-  const [ws, setWs] = useState<WebSocket | null>(null);
-  const [wsReconnectCtr, setWsReconnectCtr] = useState(0);
-  const [wsConnectCtr, setWsConnectCtr] = useState(0);
-  const [wsState, setWsState] = useState("UNINITIALIZED");
   const [macros, setMacros] = useState<Macro[]>([]);
 
-  useEffect(() => {
-    const newWebSocket = new WebSocket(`ws://${route.params.hostname}:81`);
-    setWsState(getWebSocketStateString(newWebSocket.readyState));
+  const wsMan = getWebsocketManager(`ws://${route.params.hostname}:81`);
+  const ws = wsMan.subscribeReact();
 
-    newWebSocket.onopen = () => {
-      console.log('WebSocket connected');
-      setWsState(getWebSocketStateString(newWebSocket.readyState));
-      setWs(newWebSocket);
-      setWsConnectCtr(wsConnectCtr + 1);
-    };
-
-    newWebSocket.onmessage = (e) => {
-      console.log('Received message:', e.data);
-      // Handle received messages from the server
-    };
-
-    newWebSocket.onerror = (e) => {
-      console.error('WebSocket error');
-      setWs(null);
-      setWsState(getWebSocketStateString(newWebSocket.readyState));
-      // Handle errors
-    };
-
-    newWebSocket.onclose = () => {
-      console.log('WebSocket disconnected');
-      // tolerate connect/disconnect race
-      if (ws !== newWebSocket) {
-        return
-      }
-      setWs(null);
-      setWsState(getWebSocketStateString(newWebSocket.readyState));
-      // Handle the WebSocket closing
-    };
-
-    // Clean up WebSocket connection on unmount
-    return () => {
-      newWebSocket.close();
-    };
-  }, [wsReconnectCtr]);
   const loadMacros = async () => {
     const macros = await getMacros()
     setMacros(macros);
@@ -87,7 +48,6 @@ export default function Macros({ navigation, route }: MacrosScreenProps) {
     macro.keyCommands.forEach((cmd) => ws!.send(JSON.stringify({type: "keyboard", ...cmd})))
   }, [ws])
 
-  const stateString = wsState;
   const buildMacroView = () => {
     return <View>
       {
@@ -103,9 +63,9 @@ export default function Macros({ navigation, route }: MacrosScreenProps) {
   let macrosSection = macros.length > 0 ? buildMacroView(): <Text>No Macros. Try adding one.</Text>
   return (
     <View style={styles.container}>
-      <Text>Websocket state: {stateString}</Text>
+      <Text>Websocket state: {ws.state}</Text>
       {macrosSection}
-      <Button title={`Force Reconnect (${wsConnectCtr})`} onPress={() => setWsReconnectCtr(wsReconnectCtr + 1)}></Button>
+      <Button title={`Force Reconnect (${ws.connectionCtr})`} onPress={() => ws.reconnect()}></Button>
       <Button title="Add" onPress={() => navigation.navigate('AddMacro')}></Button>
     </View>
   );
